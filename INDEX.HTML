@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MotivateMe — Personalized Motivation</title>
+<style>
+  /* ---------- Design tokens ---------- */
+  :root {
+    --bg-1: #0f2027;
+    --bg-2: #203a43;
+    --bg-3: #2c5364;
+    --card-bg: rgba(255, 255, 255, 0.08);
+    --card-border: rgba(255, 255, 255, 0.14);
+    --text-main: #f5f7fa;
+    --text-muted: #b8c2cc;
+    --accent: #00d2ff;
+    --accent-2: #928dff;
+    --radius: 20px;
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+    color: var(--text-main);
+    padding: 24px;
+  }
+
+  /* ---------- Card layout ---------- */
+  .app-card {
+    width: 100%;
+    max-width: 460px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 40px 32px;
+    text-align: center;
+  }
+
+  .app-card h1 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 6px;
+  }
+
+  .app-card p.subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 28px;
+  }
+
+  /* ---------- Form ---------- */
+  .field { text-align: left; margin-bottom: 18px; }
+
+  .field label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.4px;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-main);
+    font-size: 1rem;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.18);
+  }
+
+  .field input.error { border-color: #ff6b6b; }
+
+  .error-msg {
+    color: #ff8a8a;
+    font-size: 0.8rem;
+    min-height: 1.1em;
+    margin: -10px 0 12px;
+    text-align: left;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    width: 100%;
+    padding: 13px 18px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+
+  .btn-primary {
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    color: #08131a;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 210, 255, 0.35);
+    filter: brightness(1.08);
+  }
+
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    margin-top: 10px;
+  }
+
+  .btn-ghost:hover {
+    color: var(--text-main);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  /* ---------- Result card ---------- */
+  #result {
+    display: none;
+    margin-top: 26px;
+    padding: 24px 20px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid var(--card-border);
+  }
+
+  #result.visible {
+    display: block;
+    animation: fadeInUp 0.55s ease both;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  #result .bracket-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(0,210,255,0.25), rgba(146,141,255,0.25));
+    border: 1px solid var(--card-border);
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  #result h2 {
+    font-size: 1.35rem;
+    margin-bottom: 12px;
+  }
+
+  #result blockquote {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-main);
+    font-style: italic;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 480px) {
+    .app-card { padding: 32px 22px; }
+    .app-card h1 { font-size: 1.4rem; }
+  }
+
+</style>
+</head>
+<body>
+
+  <main class="app-card">
+    <h1>MotivateMe</h1>
+    <p class="subtitle">Personalized motivation, just for you.</p>
+
+    <form id="motivationForm" novalidate>
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Your name" required>
+      </div>
+      <div class="field">
+        <label for="age">Age</label>
+        <input type="number" id="age" name="age" min="1" placeholder="Your age" required>
+      </div>
+      <p class="error-msg" id="errorMsg" aria-live="polite"></p>
+      <button type="submit" class="btn btn-primary">Get Motivation</button>
+    </form>
+
+    <section id="result" aria-live="polite">
+      <span class="bracket-tag" id="bracketTag"></span>
+      <h2 id="greeting"></h2>
+      <blockquote id="quote"></blockquote>
+    </section>
+
+    <button id="resetBtn" class="btn btn-ghost" hidden>New Message</button>
+  </main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ----- Quote bank: 4 quotes per age bracket for variety -----
+  const QUOTES = {
+    youth: [ // Under 18
+      "Every expert was once a beginner. Stay curious — your future is built by what you learn today.",
+      "The world is wide open. Ask questions, explore boldly, and never stop growing.",
+      "You are the author of your own story, and every chapter you write now shapes an exciting tomorrow.",
+      "Dream big, work hard, and remember: the skills you build today become the wings of your future."
+    ],
+    young: [ // 18 – 29
+      "This is the season to take risks. Failure is just feedback on the road to your purpose.",
+      "Your future isn't found — it's built, one brave decision at a time. Start now.",
+      "Resilience is your superpower. Every setback is proof that you're pushing your limits.",
+      "Purpose rarely arrives fully formed. Chase what excites you, and meaning will follow."
+    ],
+    adult: [ // 30 – 49
+      "Growth doesn't stop with age — it deepens. Balance ambition with peace, and strength will follow.",
+      "You've earned wisdom the hard way. Trust it, honor it, and keep climbing.",
+      "Strength is built in the quiet, consistent moments. Keep going — you're further than you think.",
+      "Life is a marathon of becoming. Tend to your roots, and the fruit will come."
+    ],
+    senior: [ // 50+
+      "Your experience is a gift the world needs. Share your wisdom and light the way for others.",
+      "New chapters are still being written. Enjoy the journey — the best views come after the climb.",
+      "Legacy isn't what you leave behind; it's what you give while you're here.",
+      "Every year has added depth, not years. Savor this chapter — it's one of your finest."
+    ]
+  };
+
+  const BRACKET_LABELS = {
+    youth: "Youth · Under 18",
+    young: "Young Adult · 18–29",
+    adult: "Adult · 30–49",
+    senior: "Experienced · 50+"
+  };
+
+  const form      = document.getElementById("motivationForm");
+  const nameInput = document.getElementById("name");
+  const ageInput  = document.getElementById("age");
+  const errorMsg  = document.getElementById("errorMsg");
+  const result    = document.getElementById("result");
+  const greeting  = document.getElementById("greeting");
+  const quoteEl   = document.getElementById("quote");
+  const tagEl     = document.getElementById("bracketTag");
+  const resetBtn  = document.getElementById("resetBtn");
+
+  let lastQuoteIndex = -1;
+
+  // ----- Determine age bracket -----
+  function getBracket(age) {
+    if (age < 18) return "youth";
+    if (age <= 29) return "young";
+    if (age <= 49) return "adult";
+    return "senior";
+  }
+
+  // ----- Pick a random quote, avoiding immediate repeats -----
+  function pickQuote(bracket) {
+    const pool = QUOTES[bracket];
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * pool.length);
+    } while (pool.length > 1 && idx === lastQuoteIndex);
+    lastQuoteIndex = idx;
+    return pool[idx];
+  }
+
+  // ----- Validation -----
+  function validate(name, age) {
+    if (!name) return "Please enter your name.";
+    if (isNaN(age) || age < 1) return "Please enter a valid age (minimum 1).";
+    return null;
+  }
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    nameInput.classList.toggle("error", !nameInput.value.trim());
+    ageInput.classList.toggle("error", !(parseInt(ageInput.value, 10) >= 1));
+  }
+
+  function clearError() {
+    errorMsg.textContent = "";
+    nameInput.classList.remove("error");
+    ageInput.classList.remove("error");
+  }
+
+  // ----- Submit: build and show the motivational card -----
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    clearError();
+
+    const name = nameInput.value.trim();
+    const age  = parseInt(ageInput.value, 10);
+    const err  = validate(name, age);
+    if (err) { showError(err); return; }
+
+    const bracket = getBracket(age);
+    greeting.textContent = "Hello, " + name + "!";
+    tagEl.textContent    = BRACKET_LABELS[bracket];
+    quoteEl.textContent  = "\u201C" + pickQuote(bracket) + "\u201D";
+
+    result.classList.remove("visible");
+    void result.offsetWidth; // restart fade-in animation
+    result.classList.add("visible");
+
+    form.hidden = true;
+    resetBtn.hidden = false;
+    resetBtn.textContent = "Get Another Quote";
+  });
+
+  // ----- Reset / new message -----
+  resetBtn.addEventListener("click", function () {
+    form.hidden = false;
+    result.classList.remove("visible");
+    nameInput.value = "";
+    ageInput.value = "";
+    clearError();
+    resetBtn.hidden = true;
+    lastQuoteIndex = -1;
+    nameInput.focus();
+  });
+})();
+</script>
+</body>
+</html>
